@@ -71,7 +71,10 @@ function dante.main(preset_key, start_line, end_line)
   local opts = require("dante.config").options
 
   -- LLM Client
-  local preset = vim.deepcopy(opts.presets[preset_key])
+  local preset_config = opts.presets[preset_key]
+  local preset = type(preset_config) == "function"
+    and vim.deepcopy(preset_config())
+    or vim.deepcopy(preset_config)
   local client = ai.Client:new(preset.client.base_url, preset.client.api_key)
 
   -- Format the messages content (e.g. substitute selected text)

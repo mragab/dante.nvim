@@ -40,12 +40,32 @@ end
 local function validate_opts_table()
   local opts = require("dante.config").options
 
+  if not opts.presets then
+    vim.health.warn("No presets configured")
+    return
+  end
+
   for preset_key, preset in pairs(opts.presets) do
-    local ok, err = validatePreset(preset)
-    if not ok then
-      vim.health.error("Invalid preset `" .. preset_key .. "`: " .. err)
+    -- Handle function-based presets (lazy evaluation)
+    if type(preset) == "function" then
+      local ok_fn, preset_result = pcall(preset)
+      if not ok_fn then
+        vim.health.error("Preset `" .. preset_key .. "` function failed: " .. tostring(preset_result))
+      else
+        local ok, err = validatePreset(preset_result)
+        if not ok then
+          vim.health.error("Invalid preset `" .. preset_key .. "` (function result): " .. err)
+        else
+          vim.health.ok("Preset `" .. preset_key .. "` is valid (function-based)")
+        end
+      end
     else
-      vim.health.ok("Preset `" .. preset_key .. "` is valid")
+      local ok, err = validatePreset(preset)
+      if not ok then
+        vim.health.error("Invalid preset `" .. preset_key .. "`: " .. err)
+      else
+        vim.health.ok("Preset `" .. preset_key .. "` is valid")
+      end
     end
   end
 

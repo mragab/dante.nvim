@@ -30,6 +30,34 @@ using `lazy.nvim`:
             },
           }
         }
+      },
+      dependencies = {
+        { "S1M0N38/ai.nvim", version = ">=1.4.2" },
+      }
+    }
+<
+
+Alternatively, you can define presets as functions for lazy evaluation, which
+prevents environment variables from being evaluated at plugin load time:
+
+>lua
+    {
+      "S1M0N38/dante.nvim",
+      lazy = true,
+      cmd = "Dante",
+      version = "*",
+      opts = {
+        presets = {
+          ["default"] = function()
+            return {
+              client = {
+                base_url = "https://api.openai.com/v1",
+                api_key = vim.env.OPENAI_API_KEY,  -- Evaluated when preset is used
+              },
+              request = { ... }
+            }
+          end
+        }
       }
       dependencies = {
         { "S1M0N38/ai.nvim", version = ">=1.4.2" },
@@ -116,6 +144,25 @@ dante.setup({opts}) ~
     situations (e.g., just fix typos, refine an email, add emojis to a readme,
     reformat a doc, etc.). Presets can differ in provider, model, generation
     parameters, stream, and messages.
+
+    Presets can be defined as tables or as functions that return tables.
+    Function-based presets are evaluated lazily when the preset is used,
+    which is useful for delaying environment variable lookup or other dynamic
+    configuration:
+
+>lua
+    presets = {
+      ["default"] = function()
+        return {
+          client = {
+            base_url = "https://api.openai.com/v1",
+            api_key = vim.env.OPENAI_API_KEY,  -- Evaluated when preset is used
+          },
+          request = { ... }
+        }
+      end
+    }
+<
 
   - `client`: Client options for connecting to the provider's API.
     - `base_url`: The base URL to connect to the provider's API

@@ -19,10 +19,11 @@
 ---@class Preset
 ---@field client AiOptions: client options for ai.nvim
 ---@field request RequestObject: request object
+---@alias PresetFactory fun():Preset A function that returns a Preset table (lazy evaluation)
 
 ---@class DanteOptions
 ---@field verbose boolean: report the usage of the model with vim.notify
 ---@field layout Layout: layout of of the response buffer
----@field presets Preset[]: list of presets
+---@field presets table<string, Preset|PresetFactory>: list of presets (tables or functions for lazy evaluation)
 
 --- lua/dante/utils.lua --------------------------------------------------------

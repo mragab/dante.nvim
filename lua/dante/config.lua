@@ -52,7 +52,17 @@ config.options = {}
 ---It must be called before using other ai.nvim functions.
 ---@param opts DanteOptions: config table
 config.setup = function(opts)
-  config.options = vim.tbl_deep_extend("force", {}, config.defaults, opts or {})
+  opts = opts or {}
+
+  -- Extract presets from opts before merging (functions can't be deep-extended)
+  local user_presets = opts.presets
+  opts.presets = nil
+
+  -- Merge non-preset options normally
+  config.options = vim.tbl_deep_extend("force", {}, config.defaults, opts)
+
+  -- Handle presets: user presets completely replace defaults (support functions)
+  config.options.presets = user_presets or config.defaults.presets
 end
 
 return config
